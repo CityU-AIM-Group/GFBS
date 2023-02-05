@@ -14,7 +14,6 @@ def pil_loader(path):
         with Image.open(f) as img:
             return img.convert('RGB')
 
-
 class Logger(object):
     def __init__(self):
         self._logger = None
@@ -98,6 +97,23 @@ class AverageMeter(object):
         self.count += n
         self.avg = self.sum / self.count
 
+def to_python_float(t):
+    if hasattr(t, 'item'):
+        return t.item()
+    else:
+        return t[0]
+
+import torch.distributed as dist
+def reduce_tensor(tensor):
+    rt = tensor.clone()
+    dist.all_reduce(rt, op=dist.reduce_op.SUM)
+    rt /= args.world_size
+    return rt
+
+def print_log(print_string, log):
+    print("{:}".format(print_string))
+    log.write('{:}\n'.format(print_string))
+    log.flush()
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
@@ -110,10 +126,9 @@ def accuracy(output, target, topk=(1,)):
 
     res = []
     for k in topk:
-        correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
+        correct_k = correct[:k].contiguous().view(-1).float().sum(0, keepdim=True)
         res.append(correct_k.mul_(100.0 / batch_size))
     return res
-
 
 def set_seed(seed=None):
     if seed is None:

@@ -1,4 +1,3 @@
-
 import torch
 import torch.nn as nn
 import math
@@ -49,6 +48,7 @@ class BasicBlock(nn.Module):
 
         out = self.conv1(x)
         out = self.bn1(out)
+        out = self.gate1(out)
         out = self.relu(out)
 
         out = self.conv2(out)
@@ -58,6 +58,7 @@ class BasicBlock(nn.Module):
             residual = self.downsample(x)
 
         out += residual
+        out = self.gate2(out)
         out = self.relu(out)
 
         return out
@@ -77,11 +78,11 @@ class Bottleneck(nn.Module):
         self.gate2 = Gate(planes)
         self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
         self.bn3 = nn.BatchNorm2d(planes * 4)
-        self.gate3 = Gate(planes * 4)
         self.relu = nn.ReLU(inplace=True)
-        # self.relu = nn.ReLU(inplace=False)
 
         self.downsample = downsample
+        # if self.downsample is not None:
+        self.gate3 = Gate(planes * 4)
         self.stride = stride
 
     def forward(self, x):
@@ -170,6 +171,17 @@ class ResNet(nn.Module):
 
         return x
 
+
+def resnet18(pretrained=False, **kwargs):
+    """Constructs a ResNet-50 model.
+    Args:
+        pretrained (bool): If True, returns a model pre-trained on ImageNet
+    """
+    model = ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
+    # if pretrained:
+    #     model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
+    #     print('ResNet-50 Use pretrained model for initalization')
+    return model
 
 def resnet50(pretrained=False, **kwargs):
     """Constructs a ResNet-50 model.

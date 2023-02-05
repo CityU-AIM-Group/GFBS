@@ -48,9 +48,9 @@ def load_data(dataset):
         valloader = torch.utils.data.DataLoader(valset, batch_size=100, shuffle=False, num_workers=2)
     elif dataset == "cifar100":
         
-        trainset = torchvision.datasets.CIFAR10(
+        trainset = torchvision.datasets.CIFAR100(
             root='./data', train=True, download=True, transform=transform_train)
-        valset = torchvision.datasets.CIFAR10(
+        valset = torchvision.datasets.CIFAR100(
             root='./data', train=False, download=True, transform=transform_test)
         trainloader = torch.utils.data.DataLoader(
             trainset, batch_size=128, shuffle=True, num_workers=2)
@@ -126,10 +126,10 @@ def train_and_evaluate(net, trainloader, testloader, optimizer, scheduler, total
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
-    parser.add_argument('--net', default='vgg16', type=str, choices=list(MODEL_DICT.keys()), help='network used for training')
+    parser.add_argument('--net', default='gatevgg16', type=str, choices=list(MODEL_DICT.keys()), help='network used for training')
     parser.add_argument('--dataset', default='cifar10', type=str, help='dataset used for training')
     parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
-    parser.add_argument('--p', default=0.3, type=float, help='remaining channels')
+    parser.add_argument('--p', default=0.3, type=float, help='deprecated')
     parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
     parser.add_argument('--checkpoint', default=None, help='The checkpoint file (.pth)')
     parser.add_argument('--epochs', default=160, help='The number of training epochs')
